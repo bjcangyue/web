@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>无标题文档</title>
+<style>
+body,ul,p{margin:0;padding:0;}
+img{display:none;float:left;}
+#box{width:314px;height:148px;margin:30px auto;font-family:Arial, Helvetica, sans-serif;}
+#list2{display:none;}
+#box div{width:292px;height:104px;border:1px solid #c6c6c6;padding:10px 0 0 10px; }
+#top{height:30px;}
+span{display:block;width:80px;height:30px;border:1px solid #c6c6c6;float:left;font-size:14px;line-height:30px;text-align:center;color:#737373;border-bottom:none;}
+.show{width:80px;height:30px;border:1px solid #c6c6c6;border-bottom:none;color:#000;background:#fff;}
+ul {float:left;width:170px;height:96px;}
+li{width:170px;height:31px;font-size:12px;line-height:30px;margin:0 0 1px 1px;background:#dee7e7;list-style:none;}
+li a{text-decoration:none;color:#8c9191;padding-left:7px;}
+.active{background:#636363;display:block;}
+.active a{color:#fff;}
+.show1{display: block;}
+.hide{display: none;}
+</style>
+<script>
+function $( selector,content ){
+		var first = selector.charAt(),
+			arr = [],content = content || document;
+		if( first === "#" ){ //id
+			return document.getElementById( selector.slice(1) );
+		}else if( first === "." ){  //class
+			var allEle = content.getElementsByTagName("*");
+			for( var i = 0; i < allEle.length; i++ ){
+				var allClassName = allEle[i].className.split(" ");
+				for( var j = 0; j < allClassName.length; j++ ){
+					if( selector.slice(1) === allClassName[j] ){
+						arr.push( allEle[i] );
+						break;
+					}
+				};
+			}
+
+			return arr;
+		}else{//tagName
+
+			return content.getElementsByTagName( selector );
+
+		}
+
+	}
+
+/*
+	1. “专题” 和 “视频” 切换 相对应的 div开始
+
+	2. 先让一个div里面的li自动的切换起来
+
+	......
+
+	5. 如果鼠标移入当前span对用的div中li正在切换
+		那么鼠标移开的时候，就从iNow位置继续切换
+
+		如果移到了不是当前span  
+			全部从0开始切换
+			iNow = 0;
+		   那么问题来了？
+
+		   	怎么判断是否是正在切换的span
+
+
+*/
+
+
+window.onload = function (){
+
+	var oDiv = $(".oDiv");
+
+	var aSpan = $("span",$("#top"));
+
+	var status = 0; // 决定切换到哪一个div上
+
+	var timer = null;
+
+	var iNow = 0; //保存 当前div切换到的li的位置 
+
+	//通过span切换相对应的div
+	for( var i = 0; i < aSpan.length; i++ ){
+		aSpan[i].index = i;
+		aSpan[i].onmouseover = function (){
+
+			var aLi = $("li",oDiv[this.index]);
+
+			clearInterval(timer);
+			//如果切换的不是当前的span，那么让iNow这个值归为0，对应的div里面的li从0开始切换
+			if( this.className !== "show" ){
+				//让对应的div里面的li第一个加上active
+
+				for( var i = 0; i < aLi.length; i++ ){
+					aLi[i].className = "";
+				};
+
+				aLi[0].className = "active";
+
+				iNow = 0;
+			}
+
+			for( var i = 0; i < oDiv.length; i++ ){
+				oDiv[i].style.display = "none";
+				aSpan[i].className = "";
+			};
+
+			oDiv[this.index].style.display = "block";
+			this.className = "show";
+
+			status = this.index;  //保存一下当前的状态
+
+		};
+		aSpan[i].onmouseout = function (){
+			play(oDiv[this.index],iNow);	
+		};
+	};
+
+	//让第一个div里面的li自动切换
+	/*
+		play函数的参数：
+			第一个参数：切换的div
+			第二个参数：当前div下的li，从哪个位置开始切换
+	*/
+	play(oDiv[0],0);
+	function play(d,num){
+
+		var oneLi = $("li",d);
+		var n = num;
+
+		//在切换到下一个div的时候，让div里面的第一个li添加active
+		for( var i = 0; i < oneLi.length; i++ ){
+			oneLi[i].className = "";
+		};
+		//每次开始切换的时候，都给num对应的li添加上class为active
+
+		oneLi[n].className = "active";
+
+		timer = setInterval(function (){
+			n++;
+			for( var i = 0; i < oneLi.length; i++ ){
+				oneLi[i].className = "";
+			};
+			iNow = n%oneLi.length;
+			oneLi[n%oneLi.length].className = "active";
+
+			//当地一个div切换完了，进行下一个div里面的li切换
+			//要知道什么时候 当前div里的li切换完了？？？？
+
+			if( n%oneLi.length === 0 ){ //当前li全部切换完了
+				clearInterval(timer);
+				//当前div里面的li切换完成后，该进行下一个div里面的li切换
+
+				status++; //状态向前进一步
+
+				//console.log( status%aSpan.length );
+
+				for( var i = 0; i < oDiv.length; i++ ){
+					//隐藏掉所有的div
+					oDiv[i].style.display = "none";
+					aSpan[i].className = "";
+				}
+				//让切换的下一个div显示出来
+				oDiv[status%aSpan.length].style.display = "block";
+				aSpan[status%aSpan.length].className = "show";
+				//再切换到下一个div上，进行li的切换
+				play(oDiv[status%aSpan.length],0);
+			}
+		},500);
+	};
+
+
+	//每一个div里面的li添加上鼠标移入移出
+
+	/*addMouseover(oDiv[0])
+	addMouseover(oDiv[1])*/
+
+	for( var i = 0; i < oDiv.length; i++ ){
+		addMouseover(oDiv[i]);
+	};
+	
+	function addMouseover(d){
+		var aLi = $("li",d);
+		for( var i = 0; i < aLi.length; i++ ){
+			aLi[i].index = i;
+			aLi[i].onmouseover = function (){
+				clearInterval(timer);
+
+				for( var i = 0; i < aLi.length; i++ ){
+					aLi[i].className = "";
+				}
+
+				this.className = "active";
+
+			};
+			aLi[i].onmouseout = function (){
+				play( d,this.index )	
+			};		
+		}	
+	}
+
+
+
+
+
+
+};
+</script>
+</head>
+
+<body>
+
+<div id="tags">
+	
+</div>
+
+<div id="box">
+	<p id="top">
+		<span class="show">专题</span>
+		<span>视频</span>
+	</p>
+	<div class="show1 oDiv" id="bottom">
+		<img class="active"  src="image_two/list1.jpg" alt="" />
+		<img src="image_two/list2.jpg" alt="" />
+		<img src="image_two/list1.jpg" alt="" />
+
+		<ul>
+			<li class="" ><a href="#">奇虎360纽交所上市11</a></li>
+			<li><a href="#">2011年IT领袖峰会</a></li>
+			<li><a href="#">CCBN召开 助三网融合</a></li>
+
+		</ul>
+	</div>
+	<div class="hide oDiv" id="bottom1">
+		<img src="image_two/list2.jpg" alt="" class="active" />
+		<img src="image_two/list1.jpg" alt="" />
+		<img src="image_two/list2.jpg" alt="" />
+		<ul>
+			<li class="" ><a href="#">奇虎360纽交所上市22</a></li>
+			<li><a href="#">CCBN召开 助三网融合</a></li>
+			<li><a href="#">CCBN召开 助三网融合</a></li>
+		</ul>
+	</div>
+</div>
+</body>
+</html>
