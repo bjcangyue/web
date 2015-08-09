@@ -12,6 +12,7 @@ description: 苍月的练习曲-Blog 前端学习者
 # twitter_username: jekyllrb
 github_username:  bjcangyue
 permalink: /:year/:month/:day/:title/
+baseurl: /bjcangyue
 
 # Build settings
 markdown: kramdown
