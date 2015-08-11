@@ -16,6 +16,8 @@ baseurl: /web
 
 # Build settings
 markdown: kramdown
+paginate: 5
+paginate_path: "page:num"
 
 # highlight
 # 本地用rouge, github上用pygments
