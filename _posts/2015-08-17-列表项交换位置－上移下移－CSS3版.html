@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title></title>
+		<style>
+			ul{
+				position: relative;
+				border: 1px solid #000;
+				height: 500px;
+			}
+			li{
+				padding: 10px;
+				background: #fff;
+				position: relative;
+				-webkit-transition: 1s;
+				left: 0;
+			}
+		</style>
+		<script type="text/javascript" src="./comm3.js"></script>
+		<script>
+			function prev( obj ){
+				var prevNode = obj.previousElementSibling || obj.previousSibling
+
+					if( prevNode.nodeType !== 1 ) return null;
+				return prevNode;
+			};
+			function next( obj ){
+				var nextNode = obj.nextElementSibling || obj.nextSibling
+
+					if( nextNode.nodeType !== 1 ) return null;
+				return nextNode;
+			};
+			function first( obj ){
+				var firstNode = obj.firstElementChild || obj.firstChild;
+
+					if( firstNode.nodeType !== 1 ) return null;
+				return firstNode;
+			}
+			function last( obj ){
+				var lastNode = obj.lastElementChild || obj.lastChild;
+
+					if( lastNode.nodeType !== 1 ) return null;
+				return lastNode;
+			}
+			window.onload = function (){
+				var aLi = comm.$("li");
+
+				var oUl = comm.$("#oUl");
+
+				//布局转换，
+				/*
+					记录一下 每一个li所处的位置，存在一个数组里
+				*/
+
+				var arr = [];
+
+				for( var i = 0; i < aLi.length; i++ ){
+					fn(aLi[i]);
+					//console.log( aLi[i].offsetTop );
+					//记录一下li的位置
+					arr.push( { top:aLi[i].offsetTop } );
+				};
+
+				for( var j = 0; j < aLi.length; j++ ){
+					aLi[j].style.position = "absolute";
+					aLi[j].style.top = arr[j].top + "px";
+
+				}
+
+				function fn( l ){
+					var aInput = comm.$("input",l);
+
+					//向上移
+					aInput[0].onclick = function (){
+						//判定如果当前点击的按钮的父级li是第一个子元素，那么提醒alert
+
+						var firstNode = first(oUl);
+
+						if( this.parentNode === firstNode ){
+							//oUl.appendChild( this.parentNode )
+							alert( "已经是第一个了" )
+							return;
+						};
+
+						//如果不是第一个，那么当前按钮的父级li要和前一个兄弟节点li，交换位置
+
+						var prevNode = prev( this.parentNode );
+						//当前按钮父级的li的offsetTop
+						var currentTop = this.parentNode.offsetTop;
+						var prevNodeTop = prevNode.offsetTop;
+
+						var that = this;
+
+						//css3
+
+						prevNode.style.top = currentTop + "px"
+						this.parentNode.style.top = prevNodeTop + "px";
+
+						prevNode.addEventListener("webkitTransitionEnd",function (){
+							oUl.insertBefore( that.parentNode,prevNode );
+						})
+
+					};
+
+					//向下移
+					aInput[1].onclick = function (){
+
+						var lastNode = last( oUl );
+						var firstNode = first( oUl ); //ul的第一个子节点
+						console.log( lastNode.innerHTML );
+						if( this.parentNode === lastNode ){
+							//把最后一盒子节点插入到第一个子节点之前
+
+							/*oUl.insertBefore( this.parentNode,firstNode )*/
+
+							alert( "已经是最后一个" );
+							return;
+						};
+
+						var nextNode = next( this.parentNode );
+
+						var currentTop = this.parentNode.offsetTop;
+						var nextNodeTop = nextNode.offsetTop;
+
+						var that = this;
+
+						nextNode.style.top = currentTop + "px";
+						this.parentNode.style.top = nextNodeTop + "px";
+						nextNode.addEventListener("webkitTransitionEnd",function (){
+								oUl.insertBefore( nextNode,that.parentNode );
+						})
+
+					};
+
+				}
+
+			};
+		</script>
+	</head>
+
+	<body>
+		<ul id="oUl">
+			<li>
+				<span>啦啦啦啦</span>
+				<input type="button" value="上移">
+				<input type="button" value="下移">
+			</li>
+			<li>
+				<span>哈哈哈哈</span>
+				<input type="button" value="上移">
+				<input type="button" value="下移">
+			</li>
+			<li>
+				<span>嘿嘿额和</span>
+				<input type="button" value="上移">
+				<input type="button" value="下移">
+			</li>
+			<li>
+				<span>呱呱呱呱</span>
+				<input type="button" value="上移">
+				<input type="button" value="下移">
+			</li>
+			<li>
+				<span>哥哥哥哥</span>
+				<input type="button" value="上移">
+				<input type="button" value="下移">
+			</li>
+		</ul>
+	</body>
+</html>

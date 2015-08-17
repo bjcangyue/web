@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title></title>
+		<style>
+			*{padding: 0; margin: 0;}
+			a{
+				text-decoration: none;
+			}
+			#main{
+				width: 800px;
+				height: 2000px;
+				border: 1px dashed #000;
+				margin: 0 auto;
+			}
+			#content {
+				width: 500px;
+				border: 5px solid pink;
+				padding: 20px;
+				margin:20px auto;
+				position: relative;
+			}
+			#content p{
+				line-height: 80px;
+				position: relative;
+			}
+			#content span{
+				color: red;
+				cursor: pointer;
+				position: relative;
+				border: 5px solid pink;
+				padding: 4px;
+				font-size: 14px;
+			}
+			#prompt{
+				
+				padding: 15px;
+				background: green;
+				position: absolute;
+				left: 0;
+				top:0;
+				display: block;
+				color: white;
+				line-height: 30px;
+				display: none;
+				
+				
+			}
+		</style>
+<script>
+</script>
+	</head>
+
+	<body>
+		<div id="main">
+			<div id="content">
+				<p>每的学员来<span>妙味课堂</span>学习</p>
+				<p>每期都有新的学员来<span>妙味课堂</span>学习,<span>妙味课堂</span>欢迎您！</p>
+			</div>
+		</div>
+		
+		<div id="prompt"></div>
+	</body>
+	<script>
+
+		function getStyle( obj,attr ){
+			return obj.currentStyle ? obj.currentStyle[attr] : getComputedStyle(obj)[attr];
+		};
+
+		function offset( obj ){
+			var l = 0,t = 0;
+			var border_l_w = parseFloat(getStyle(obj,"borderLeftWidth"));
+			var border_t_w = parseFloat(getStyle(obj,"borderTopWidth"));
+			border_l_w = isNaN( border_l_w ) ? 0 : border_l_w;
+			border_t_w = isNaN( border_t_w ) ? 0 : border_t_w;
+			while( obj ){
+				var border_l_w2 = parseFloat(getStyle(obj,"borderLeftWidth"));
+				var border_t_w2 = parseFloat(getStyle(obj,"borderTopWidth"));
+				border_l_w2 = isNaN( border_l_w2) ? 0 : border_l_w2;
+				border_t_w2 = isNaN( border_t_w2 ) ? 0 : border_t_w2;
+				l += obj.offsetLeft + border_l_w2;
+				t += obj.offsetTop + border_t_w2;
+				obj = obj.offsetParent;
+			};
+			return {
+				x: l-border_l_w,
+				y: t-border_t_w
+			}
+		};
+
+		var aSpan = document.getElementById("content").getElementsByTagName("span");
+		var oPrompt = document.getElementById("prompt");
+		var oContent = document.getElementById("content");
+
+		var arr = ["miawossssssssssssssssssss","哈哈哈哈哈哈哈","heeeeeeeeeeeeeeeeeeeeeeeeeeee"]
+
+		for( var i = 0; i < aSpan.length; i++ ){
+			aSpan[i].index = i;
+			aSpan[i].onmouseover = function (){
+				var oneSpanW = this.offsetWidth;
+				var oneSpanH = this.offsetHeight;	
+				oPrompt.style.display = "block";
+
+				oPrompt.innerHTML = arr[this.index];
+
+				var l = offset(this).x + oneSpanW;
+				var t = offset(this).y+ oneSpanH ;
+
+				//判断
+
+				//大框content到屏幕左边的距离
+
+				var contentLeft = offset(oContent).x;
+				var contentTop = offset(oContent).y;
+
+				var contentW = oContent.offsetWidth-parseFloat(getStyle(oContent,"borderLeftWidth"));
+				var contentH = oContent.offsetHeight-parseFloat(getStyle(oContent,"borderTopWidth"));
+
+				var oPromptW = oPrompt.offsetWidth;
+				var oPromptH = oPrompt.offsetHeight;
+
+				var chazhiX= 0;
+				var chazhiY= 0;
+
+				if( l + oPromptW > contentLeft + contentW  ){
+					//console.log( "超出了边界" );
+					//计算超出多少
+					chazhiX = (l + oPromptW ) - (contentLeft + contentW);
+
+					l = l - chazhiX;
+				};
+				//判断一下top是否超出了边界
+				if( t + oPromptH > contentTop+ contentH){
+					t = offset(this).y - oPromptH;
+				}
+				oPrompt.style.left = l + "px";
+				oPrompt.style.top = t + "px";				
+			};
+			aSpan[i].onmouseout = function (){
+				oPrompt.style.display = "none";
+			}
+		}
+	</script>
+</html>

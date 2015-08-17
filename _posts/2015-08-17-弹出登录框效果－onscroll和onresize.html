@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title></title>
+		<style>
+			*{
+				padding:0;
+				margin: 0;
+			}
+			a{
+				text-decoration: none;
+				color: #000;
+			}
+			#main{
+				width: 798px;
+				height: 10000px;
+				border: 1px dashed #000;
+				margin: 0px auto;
+				position: relative;
+			}
+			#goBack {
+				width: 25px;
+				height: 80px;
+				position:fixed;
+				_position: absolute;
+				left: 50%;
+				bottom:30px;
+				display: block;
+				background: #ccc;
+				text-align: center;
+				margin-left: 400px;
+				display: none;
+			}
+			#leftAd ,#rightAd{
+				width: 100px;
+				height: 300px;
+				background: red;
+				position: fixed;
+				_position:absolute;
+				top: 50%;
+				margin-top: -150px;
+				_margin-top:0;
+			}
+			#leftAd{
+				left: 0;
+			}
+			#rightAd {
+				right: 0px;
+			}
+			#login {
+				width: 300px;
+				height: 100px;
+			}
+			#mask {
+				width: 100%;
+				height: 100%;
+				background: #000;
+				opacity: 0.5;
+				position: fixed;
+				_position:absolute;
+				left: 0;
+				top:0;
+				z-index: 10;
+				filter:alpha(opacity=50);
+				display: none;
+				
+			}
+			#loginBox {
+				width: 200px;
+				height: 200px;
+				position: fixed;
+				_position:absolute;
+				background: #fff;
+				left: 50%;
+				top:50%;
+				margin-left:-100px;
+				margin-top:-100px;
+				border: 1px solid #000;
+				z-index: 11;
+				_margin-top:0;
+				display: none;
+			}
+			#tops {
+				width: 100%;
+				height: 300px;
+				border-bottom: 1px solid #000;
+			}
+			#nav {
+				width: 798px;
+				height: 30px;
+				background: blue;
+				position: relative;
+			}
+			#navContent {
+				height: 30px;
+			}
+		</style>
+		<script>
+			function getStyle( obj,attr ){
+				return obj.currentStyle ? obj.currentStyle[attr] : getComputedStyle(obj)[attr];
+			};
+
+			function offset( obj ){
+				var l = 0,t = 0;
+
+				var border_l_w = parseFloat(getStyle(obj,"borderLeftWidth"));
+				var border_t_w = parseFloat(getStyle(obj,"borderTopWidth"));
+
+				border_l_w = isNaN( border_l_w ) ? 0 : border_l_w;
+				border_t_w = isNaN( border_t_w ) ? 0 : border_t_w;
+
+				while( obj ){
+
+					var border_l_w2 = parseFloat(getStyle(obj,"borderLeftWidth"));
+					var border_t_w2 = parseFloat(getStyle(obj,"borderTopWidth"));
+
+					border_l_w2 = isNaN( border_l_w2) ? 0 : border_l_w2;
+					border_t_w2 = isNaN( border_t_w2 ) ? 0 : border_t_w2;
+
+					l += obj.offsetLeft + border_l_w2;
+					t += obj.offsetTop + border_t_w2;
+					obj = obj.offsetParent;
+				};
+
+				return {
+					x: l-border_l_w,
+					y: t-border_t_w
+				}
+			};
+			function view(){
+				return {
+					W:document.documentElement.clientWidth,
+					H:document.documentElement.clientHeight
+				}
+			};
+			function scrollTop(){
+				return document.body.scrollTop || document.documentElement.scrollTop;
+			}
+			window.onload = function(){
+				var goBack = document.getElementById("goBack");
+				var leftAd = document.getElementById("leftAd");
+				var rightAd = document.getElementById("rightAd");
+
+				var mask = document.getElementById("mask");
+				var loginBox = document.getElementById("loginBox");
+
+				var login = document.getElementById("login");
+
+				jsScrollTop();
+
+				var oNav = document.getElementById("nav");
+
+				//得到导航条离浏览器上面的距离
+				var navTop = offset(oNav).y;
+
+				//alert( navTop )
+				
+
+				var navigators = window.navigator.userAgent;
+				//判定为ie6
+				if( navigators.indexOf( "MSIE 6.0") !== -1 ){
+					goBack.style.top = view().H - goBack.offsetHeight - 30 + scrollTop() + "px";
+
+					leftAd.style.top = rightAd.style.top = (view().H - leftAd.offsetHeight)/2+ scrollTop() + "px";
+					//得到元素的offsetHeight，保证这个元素是显示的，如果设置了display：none。那么获取的offsetHeigh始终为0；
+					loginBox.style.display = "block";
+					loginBox.style.left = "999px";
+					loginBox.style.top = (view().H - loginBox.offsetHeight)/2 + scrollTop() + "px";
+					loginBox.style.display = "none";
+					loginBox.style.left = "50%";
+					//alert( loginBox.offsetHeight )
+					//找出最大高度
+					var h = Math.max( document.body.scrollHeight,view().H )
+
+					mask.style.height = h + "px"
+
+					window.onscroll = window.onresize = function (){
+						jsScrollTop();
+						leftAd.style.top = rightAd.style.top = (view().H - leftAd.offsetHeight)/2 + scrollTop() + "px";
+						goBack.style.top = view().H - goBack.offsetHeight - 30 + scrollTop() + "px";
+						loginBox.style.top = (view().H - loginBox.offsetHeight)/2 + scrollTop() + "px";
+					};
+				}else{
+					window.onscroll = function (){
+						jsScrollTop();
+
+						//如果scrollTop的距离 大于了导航到浏览器上面的距离，那么就判断导航条已经滚出了可视区域
+
+						if( scrollTop() > navTop ){
+							oNav.style.position = "fixed";
+							oNav.style.top = "0";
+						}else{
+							oNav.style.position = "relative";
+						}
+
+					};
+				}
+
+				function jsScrollTop(){
+					if( scrollTop() > 10 ){
+
+						goBack.style.display = "block";
+					}else{
+						goBack.style.display = "none";
+					}	
+				}
+
+				login.onclick = function (){
+					mask.style.display = "block";	
+					loginBox.style.display = "block";	
+				};
+
+				goBack.onclick = function (){
+					document.documentElement.scrollTop = 0;	
+					document.body.scrollTop = 0;	
+				};
+			};
+		</script>
+	</head>
+
+	<body>
+
+		<div id="main">
+			<div id="tops">
+				说明
+			</div>
+			<div id="navContent">
+				<div id="nav">导航</div>
+			</div>
+			<div id="content">
+				1111<br>1111<br>1111<br>1111<br>1111<br>
+				1111<br>1111<br>1111<br>1111<br>1111<br>
+				1111<br>1111<br>1111<br>1111<br>1111<br>
+				1111<br>1111<br>1111<br>1111<br>1111<br>
+				1111<br>1111<br>1111<br>1111<br>1111<br>
+			</div>
+			<input type="button" value="登录按钮" id="login" />
+		</div>
+		<a href="javascript:;" id="goBack">回到顶部</a>
+		<div id="leftAd"></div>
+		<div id="rightAd"></div>
+		<div id="mask"></div>
+		<div id="loginBox">
+			登录信息
+		</div>
+	</body>
+</html>
