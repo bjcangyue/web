@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>无标题文档</title>
+<style>
+ul {width: 200px;margin:30px auto;}
+ul li {color: #666;background-color: #eee;font-weight:bold; font-size: 14x; height: 30px; line-height: 30px; padding: 0 20px;list-style:none;}
+ul .focus {font-size: 22px; background-color: #555;color:#fff;}
+ul .near {font-size:18px; background-color: #ccc;color:blue;}
+ul .none {background:#333;color:#fff;}
+ul .yellow {background:yellow;}
+</style>
+<script>
+function first( obj ){
+	var firstChild = obj.firstElementChild || obj.firstChild;
+
+	//alert( firstChild )
+	if( !firstChild || firstChild.nodeType !== 1 ) {
+		return null;
+	}else{
+		return firstChild;
+	}
+}
+function last( obj ){
+	var lastChild = obj.lastElementChild || obj.lastChild;
+
+	//alert( firstChild )
+	if( !lastChild || lastChild.nodeType !== 1 ) {
+		return null;
+	}else{
+		return lastChild;
+	}
+}
+function next( obj ){
+	var nextSibling = obj.nextElementSibling || obj.nextSibling;
+
+	if( !nextSibling || nextSibling.nodeType !== 1 ){
+		return null;
+	}else{
+		return nextSibling;
+	}	
+}
+function prev( obj ){
+	var prevSibling = obj.previousElementSibling || obj.previousSibling;
+	if( !prevSibling || prevSibling.nodeType !== 1 ){
+		return null;
+	}else{
+		return prevSibling;
+	}
+}
+window.onload=function(){
+
+	/*
+		a. 利用索引值 排除掉0 和 len - 1;
+		b. 排除第一个和最后一个，判断获取的元素是否是第一个和最后一个
+	*/
+
+	//先获取到ul和所有的li
+	var oList=document.getElementById('list');
+	var aLi=oList.getElementsByTagName('li');
+
+	//console.log( aLi[0] === first(oList) );
+
+	var firstNode = first(oList); //第一个元素
+	var lastNode = last(oList); //最后一个元素
+
+	var len = aLi.length;
+
+	for( var i = 0; i < len; i++ ){
+		aLi[i].onmouseover = function (){
+
+			//console.log( this !== firstNode && this !== lastNode );
+			if( this !== firstNode && this !== lastNode ){
+
+				this.className = "focus";
+				if(prev( this ) !== firstNode){
+					prev( this ).className = "near";
+				}
+				if( next( this ) !== lastNode ){
+					next( this ).className = "near";
+				}
+			}else{
+				this.className = "yellow";
+			}
+
+		};
+		aLi[i].onmouseout = function (){
+
+			for( var i = 0; i < len; i++ ){
+				aLi[i].className = "";		
+			};
+
+			firstNode.className = "none";
+			lastNode.className = "none";
+
+				
+		};
+	}
+
+}
+</script>
+
+</head>
+
+<body>
+<ul id="list">
+    <li class="none">这是首行</li>
+    <li>111111</li>
+    <li>222222</li>
+    <li>333333</li>
+    <li>444444</li>
+    <li>555555</li>
+    <li>666666</li>
+    <li>111111</li>
+    <li>222222</li>
+    <li>333333</li>
+    <li>444444</li>
+    <li>555555</li>
+    <li class="none">这是末行</li>
+</ul>
+</body>
+</html>
