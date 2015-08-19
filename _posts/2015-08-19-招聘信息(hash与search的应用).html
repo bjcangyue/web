@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title></title>
+		<style>
+			*{padding: 0;margin:0;}
+			li{
+				list-style: none;
+			}
+			a{
+				list-style: none;
+			}
+			#main{
+				width: 800px;
+				height: 800px;
+				border: 1px dashed #000;
+				margin: 0 auto
+			}
+			#left{
+				float: left;
+				width: 90px;
+				height: 100%;
+				border-right: 1px solid #000;
+			}
+			#left a{
+				display: block;
+				line-height: 50px;
+			}
+			#right{
+				float: left;
+				width: 700px;
+			}
+			#right h3{
+				line-height: 50px;
+			}
+			#pageTotal {
+				overflow: hidden;
+			}
+			#pageTotal div {
+				float: left;
+				margin: 0 5px;
+			}
+			#pageTotal div span{
+				width: 50px;
+				height: 20px;
+				text-align: center;
+				background: #666;
+				display: inline-block;
+				margin:0 5px;
+			}
+			#pageTotal div span.bColor{
+				background: red;
+			}
+			#pageTotal p {
+
+				text-align: center;
+				width: 50px;
+				height: 20px;
+				float: left;
+				background: #666;
+			}
+			#info .block span{
+				padding: 20px;
+				font-size: 14px;
+				font-weight: bold;
+			}
+			#info .gays{
+				padding: 20px;
+				color: #666;
+			}
+			#info .gays a{
+				font-size: 12px;
+				padding: 10px;
+				color: #328fbe;
+			}
+
+		</style>
+<script type="text/javascript" src="{{ site.baseurl}}/static/js/demo-20150819-data.js"></script>
+<script>
+/*
+	1. 获取地址栏的信息，如果search值不存在，那么默认为world
+		如果没有hash值，默认为第一页，格式为 page=1
+	2. 分页的页数，根据加载进来的数据的条数自动生动生成的
+	3. 选择数据，world数据对应当然为data，school对应的数据为data2
+*/
+window.onload = function (){
+
+	var oInfo = document.getElementById("info");//渲染数据的容器
+	var pages = document.getElementById("pages");// 存放页数	
+	var prev = document.getElementById("prev");	//向上翻页	
+	var next = document.getElementById("next");	//向下翻页
+	var oH3 = document.getElementById("right").getElementsByTagName("h3")[0]
+
+	var location = window.location;
+	var search = location.search;
+	var datas = null;
+
+	if( search === "" ){  //如果search值没有，默认就加载社会招聘的数据，为data
+		window.location.search = "?world";
+		datas = data;
+		oH3.innerHTML = "社会招聘";
+	}else if(search === "?school"){
+		oH3.innerHTML = "校园招聘";
+		datas = data2;
+	}else if(search === "?world"){
+		oH3.innerHTML = "社会招聘";
+		datas = data;
+	}else if(  search === "?miaov"  ){
+		oH3.innerHTML = "miaov招聘";
+		datas = data3;
+	};
+
+	var hash = location.hash;
+	var pageNum = Math.ceil( datas.length/5 ); //页数
+	var allSpan = pages.getElementsByTagName("span");
+	var num=0;
+	if( hash === "" ){
+		window.location.hash = "page=1";
+		render( 1 );
+		num=1;
+	}else{
+		num = hash.split("=")[1];
+		if( num > pageNum ){
+			num = pageNum;
+		}
+		render( num );
+	};
+
+	prev.onclick = function (){
+		num--;
+		if( num < 1 ){
+			num = 1;
+			return;
+		};
+		window.location.hash = "page="+num;
+		for( var i = 0; i < allSpan.length; i++ ){
+			allSpan[i].className = "";
+		};
+		allSpan[num-1].className = "bColor";
+		render(num);
+	};
+	next.onclick = function (){
+		num++;
+		if( num > pageNum ){
+			num = pageNum;
+			return;
+		};
+		window.location.hash = "page="+num;
+		for( var i = 0; i < allSpan.length; i++ ){
+			allSpan[i].className = "";
+		};
+		allSpan[num-1].className = "bColor";
+		render(num);
+	};
+
+	//根据data数据来生成相应页数的span
+	for( var i = 0; i < pageNum; i++ ){
+		var aSpan = document.createElement("span");
+		aSpan.innerHTML = i+1;
+		if( i === 0 ){
+			aSpan.className = "bColor";
+		}
+		pages.appendChild(aSpan)
+	};
+	
+	//点击span，切换到相对应数据
+	for( var i = 0; i < allSpan.length; i++ ){
+		allSpan[i].className = "";
+		allSpan[i].onclick = function (){
+			var htmlVal = this.innerHTML; //当你获取一个页面中字符串的时候，首先要想到的是，取出钱后的空格
+			render( htmlVal );
+			window.location.hash = "page="+htmlVal;
+			for( var i = 0; i < allSpan.length; i++ ){
+				allSpan[i].className = "";
+			}
+			this.className = "bColor";
+			num = htmlVal;
+		};
+	};
+	allSpan[num-1].className = "bColor";
+
+	//渲染页面	
+	function render( n ){ // n代表的是页数		
+		if( n > pageNum ){
+			n = pageNum;
+			window.location.hash = "page="+pageNum;
+		};
+		var str = "";
+		for( var i = (n - 1)*5; i < n*5; i++ ){
+			if(datas[i]){
+				str += '<div><p class="block"><span>'+datas[i].num+'</span><span>职位需求：'+ datas[i].job +'</span><span>需求人数：'+datas[i].pNum+'名</span><span>'+datas[i].data+'</span></p><p class="gays">'+datas[i].ask+'<a href="javascript:void(0);">【查看详情】</a></p></div>';
+			}			
+		};
+		oInfo.innerHTML = str;	
+	}
+};
+</script>
+	</head>
+
+	<body>
+		<div id="main">
+			<div id="left">
+				<a href="?world">社会招聘</a>
+				<a href="?school">校园招聘</a>
+				<a href="?miaov">miaov招聘</a>
+			</div>
+			<div id="right">
+				<h3>社会招聘</h3>
+				<div id="info">
+					
+				</div>
+				<div id="pageTotal">
+					<p id="prev">prev</p>
+					<div id="pages">
+					</div>
+					<p id="next">next</p>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
