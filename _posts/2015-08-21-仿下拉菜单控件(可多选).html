@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title></title>
+		<style>
+			*{padding: 0;margin: 0;}
+			li{
+				list-style: none;
+			}
+			a{
+				text-decoration: none;
+			}
+			#div1{
+				width: 300px;
+				margin: 20px auto;
+			}
+			#div1 div{
+				border: 1px solid #000;
+				width: 100%;
+				height: 30px;
+			}
+			#div1 ul {
+				background: #666; 
+				display: none;
+			}
+			#div1 ul a{
+				display: block;
+				padding: 5px;
+			}
+			#div1 ul a:hover{
+				background: green;
+			}
+			#div1 ul a.green{
+				background: green;
+			}
+		</style>
+<script>	
+	window.onload = function(){
+
+		txt.onclick = function (ev){
+			var e = ev ||event;
+			oUl.style.display = "block";
+			e.cancelBubble = true;	
+		};
+		var arr = [];
+		var allA = oUl.getElementsByTagName("a");
+		oUl.onclick  =function (ev){
+			var e = ev || event;
+			if( e.ctrlKey ){
+				e.cancelBubble = true;	
+			}else{
+				arr = [];
+				for( var i = 0; i < allA.length; i++ ){
+					allA[i].className = "";
+				};
+			}
+
+			var target = e.target || e.srcElement;
+			var m = indexOf(arr,target.innerHTML);
+			if( m !== -1 ){
+				arr.splice(m,1);
+				target.className = "";
+			}else{
+				arr.push(target.innerHTML);
+				target.className = "green";
+			}
+			txt.innerHTML = arr.join(",");
+		};
+		document.onclick = function (){
+			oUl.style.display = "none";		
+		};
+
+		function indexOf( arr,str,searchIndex ){
+			searchIndex = searchIndex || 0;
+			for( var i = searchIndex; i < arr.length; i++ ){
+				if( arr[i] === str ){
+					return i;
+				}
+			}
+			return -1;
+		}
+	};
+</script>
+	</head>
+
+	<body>
+		<div id="div1">
+			<div id="txt"></div>
+			<ul id="oUl">
+				<li><a href="javascript:void(0);">11111111</a></li>
+				<li><a href="javascript:void(0);">222</a></li>
+				<li><a href="javascript:void(0);">33333</a></li>
+				<li><a href="javascript:void(0);">44444444444</a></li>
+				<li><a href="javascript:void(0);">5555555555</a></li>
+			</ul>
+		</div>
+	</body>
+</html>

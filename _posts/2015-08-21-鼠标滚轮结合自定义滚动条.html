@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title></title>
+		<style>
+			*{
+				padding: 0;
+				margin: 0;
+			}
+			#div1{
+				width: 20px;
+				height: 100%;
+				background: blue;
+				position: absolute;
+				right: 0px;
+				top:0px;
+				z-index: 2;
+			}
+			#srcollBar {
+				width: 100%;
+				height: 30px;
+				background: red;
+				position: absolute;
+				left: 0;
+				top:0;
+			}
+			#scrollBox {
+				width: 200px;
+				height: 300px;
+				position: absolute;
+				left: 300px;
+				top:30px;
+				border: 1px solid #000;
+				overflow:hidden;
+				background: red;
+			}
+			#scrollContent {
+				width: 100%;
+				position: absolute;
+				left: 0;
+				top:0;
+			}
+		</style>
+<script>
+
+	function mousewheel( obj,upFn,downFn ){
+		obj.onmousewheel = wheel;
+		if( obj.addEventListener ){
+			obj.addEventListener("DOMMouseScroll",wheel,false);
+		}
+
+		function wheel(ev){
+			var e  = ev || event;
+			var direction = true;
+			if( e.wheelDelta ){
+				direction = e.wheelDelta > 0 ? true : false;
+			}
+			if( e.detail ){
+				direction = e.detail < 0 ? true : false;
+			};
+			if( direction ){
+				upFn && typeof upFn === "function" && upFn(e);
+			}else{
+				downFn && typeof downFn === "function" && downFn(e);
+			}
+
+			if( e.preventDefault ){
+				e.preventDefault();
+			};
+			e.returnValue = false;
+		}
+	}
+
+
+	window.onload = function(){		
+		var max2 = scrollContent.scrollHeight - scrollBox.clientHeight;	//内容最大能够走的距离		
+		var scale = scrollBox.clientHeight/scrollContent.scrollHeight;
+		srcollBar.style.height = scale * div1.offsetHeight + "px";		
+		var max = div1.offsetHeight - srcollBar.offsetHeight;		//滚动态能走的最大的距离
+
+		srcollBar.onmousedown = function (ev){
+			var e = ev || event;
+			var disY = e.clientY - this.offsetTop;
+
+			document.onmousemove = function (ev){
+				var e = ev || event;
+				var t = e.clientY - disY;
+				fn(t);
+			};	
+			document.onmouseup = function (){
+				document.onmousemove = null;
+				document.onmouseup = null;
+				if( srcollBar.releaseCapture ){
+					srcollBar.releaseCapture();
+				}
+			};
+
+			if( srcollBar.setCapture ){
+				srcollBar.setCapture();
+			}
+			return false;
+		};
+
+		function fn(t){
+			if( t < 0 ){
+				t = 0;
+			}
+			if( t > div1.offsetHeight - srcollBar.offsetHeight ){
+				t =  div1.offsetHeight - srcollBar.offsetHeight 
+			}
+			srcollBar.style.top = t + "px";	
+			scrollContent.style.top = -t/max * max2 + "px";
+		}
+
+		mousewheel( div1,function (){
+			var t = srcollBar.offsetTop - 5;
+			fn(t)
+		} ,function (){
+			var t = srcollBar.offsetTop + 5;
+			fn(t)
+		});
+		mousewheel( scrollBox,function (){
+			var t = srcollBar.offsetTop - 5;
+			fn(t)
+		} ,function (ev){
+			var t = srcollBar.offsetTop + 5;
+			alert( ev.srcElement.id )
+			fn(t)
+		});
+	};
+</script>
+	</head>
+
+	<body>
+		
+		<div id="scrollBox">
+			<div id="div1">
+				<div id="srcollBar"></div>
+			</div>
+			<div id="scrollContent">
+				<p>开始</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>1111111111111</p>
+				<p>结尾</p>
+			</div>
+		</div>
+	</body>
+</html>

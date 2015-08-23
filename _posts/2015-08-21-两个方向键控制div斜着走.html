@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title></title>
+		<style>
+			*{padding: 0;margin: 0;}
+			#div1{
+				width: 100px;
+				height: 100px;
+				background: red;
+				position: absolute;
+				left: 0px;
+				top:0px;
+			}
+		</style>
+<script>
+	window.onload = function(){
+		var json = {};
+		var timer = null;
+		document.onkeydown = function (ev){
+			var e = ev || event;
+			json[e.keyCode] = true;
+			if(!timer) fn();
+		};
+		document.onkeyup = function (ev){
+			var e = ev || event;
+			json[e.keyCode] = false;			
+
+			var onOff = true;	//当所有按键都为false时，把开关设为true;然后彻底的关掉定时器
+			for( var attr in  json ){
+				if( json[attr] ){
+					onOff = false;
+				}
+			}
+			if( onOff ){
+				clearInterval(timer)
+				timer = null;
+			}
+		};
+
+		function fn(){
+			timer = setInterval(function (){
+				if( json[37] ){
+					div1.style.left = div1.offsetLeft - 5 + "px";
+				}
+				if( json[38] ){
+					div1.style.top = div1.offsetTop - 5 + "px";
+				}
+				if( json[39] ){
+					div1.style.left = div1.offsetLeft + 5 + "px";
+				}
+				if( json[40] ){
+					div1.style.top = div1.offsetTop + 5 + "px";
+				}
+			},16);	
+		}
+	};	
+</script>
+	</head>
+
+	<body>
+		<div id="div1"></div>
+	</body>
+</html>
