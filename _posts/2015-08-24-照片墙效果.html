@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title></title>
+		<style>
+			*{
+				padding: 0;
+				margin: 0;
+			}
+			li{
+				list-style: none;
+			}
+			#div1 {
+				width: 900px;
+				margin: 0px auto;
+			}
+			#div1 ul {
+				margin-top: 10px;
+				width: 900px;
+				height: 550px;
+				padding: 10px;
+				border: 1px dashed #000;
+				overflow: hidden;
+				position: relative;
+			}
+			#div1 ul li {
+				float: left;
+				margin: 10px;
+				width: 200px;
+				height: 150px;
+				overflow: hidden;
+				position: relative;
+				z-index: 1;
+			}
+			#div1 ul li {
+				width: 200px;
+				height: 150px;
+			}
+			#div1 ul li.active{
+				border: 2px dashed red;
+			}
+		</style>
+		<script type="text/javascript" src="./move.js"></script>
+<script>
+function getStyle(obj, attr){
+	if(obj.currentStyle){return obj.currentStyle[attr];	}
+	else{return getComputedStyle(obj, false)[attr];	}
+}
+
+function startMove(obj, json, fn)
+{
+	//if( obj.timer ) return;
+	clearInterval(obj.timer);
+	obj.timer=setInterval(function (){
+		var bStop=true;		
+		for(var attr in json){
+			var iCur=0;			
+			if(attr=='opacity'){
+				iCur=parseInt(parseFloat(getStyle(obj, attr))*100);
+			}else{
+				iCur=parseInt(getStyle(obj, attr));
+			}
+			var iSpeed=(json[attr]-iCur)/8;		
+			iSpeed=iSpeed>0?Math.ceil(iSpeed):Math.floor(iSpeed);
+			if(iCur!=json[attr]){bStop=false;}			
+			if(attr=='opacity')	{
+				obj.style.filter='alpha(opacity:'+(iCur+iSpeed)+')';
+				obj.style.opacity=(iCur+iSpeed)/100;
+			}else{
+				obj.style[attr]=iCur+iSpeed+'px';
+			}
+		}
+		
+		if(bStop){
+			clearInterval(obj.timer);			
+			fn &&　fn();
+			obj.timer = null;
+		}
+	}, 30)
+}
+
+window.onload = function(){
+	var oUl = document.getElementById("oUl");
+	var aLi = oUl.getElementsByTagName("li");
+	var oBtn = document.getElementById("btn")	
+
+	var arr = [];		
+	for( var i = 0; i < aLi.length; i++ ){		//布局转换
+		arr.push( {left:aLi[i].offsetLeft,top:aLi[i].offsetTop} );
+		aLi[i].index = i;
+	};
+	for( var j = 0; j < aLi.length; j++ ){
+		aLi[j].style.position = "absolute";
+		aLi[j].style.left = arr[j].left + "px";
+		aLi[j].style.top = arr[j].top + "px";
+		aLi[j].style.margin = 0;
+	};
+
+	oBtn.onclick = function (){
+		arr.sort(function (){
+			return Math.random() - 0.5;		
+		});
+		for( var i = 0; i < aLi.length; i++ ){
+			clearInterval( aLi[i].timer )
+			aLi[i].timer = null;
+			startMove( aLi[i],{left:arr[i].left,top:arr[i].top} );
+		 aLi[i].index = i;
+		}
+	};
+
+	var zIndex = 1;
+	var onOff = true;
+
+	oUl.onmousedown = function (ev){
+		var e = ev || event;
+		var target = e.target || e.srcElement;
+
+		if( oUl.setCapture ){oUl.setCapture();}
+		if( e.preventDefault ){	e.preventDefault();	}
+		if( !onOff ) return;
+		onOff  = false;
+		zIndex++;
+		if(  target.nodeName.toLowerCase() === "img" ){
+			target = target.parentNode; // 找到图片的父级 li
+			target.style.zIndex = zIndex;
+			var disX = e.clientX - target.offsetLeft;
+			var disY = e.clientY - target.offsetTop;	
+			var obj2 = null;		//存一下 碰上的那个元素
+
+			document.onmousemove = function (ev){
+				var e = ev || event;
+				target.style.left = e.clientX - disX + "px";	
+				target.style.top = e.clientY - disY + "px";	
+
+				var arrObj = [];  //存放碰上的li
+				var max = +Infinity;
+				var obj = null;
+
+				//跟所有的li去检测碰撞
+				for( var i = 0; i < aLi.length; i++ ){
+					aLi[i].className = "";
+					aLi[i].style.margin = 0;
+					if(target !== aLi[i] && pengzhuang( target,aLi[i] ) ){						
+						arrObj.push( aLi[i] )		//跟每一个li检测碰撞，碰上的元素，让在数组里
+					}
+				};
+				
+				for( var j = 0; j < arrObj.length; j++ ){	//计算一下离碰撞上的元素哪一个最近
+					var l = Math.abs(target.offsetLeft - arrObj[j].offsetLeft);
+					var t = Math.abs(target.offsetTop - arrObj[j].offsetTop);					
+					var sqrt = Math.sqrt( l*l + t*t );		//求出斜边					
+					if( max > sqrt ){		//求出最小的数 存一下最小数对应的li
+						max = sqrt;
+						obj = arrObj[j];
+					}
+				}
+
+				if( obj ){
+					obj.className = "active";
+					obj.style.margin = "-2px 0 0 -2px";
+				}
+				obj2 = obj;
+			};
+			document.onmouseup = function (){
+				document.onmousemove = null;
+				document.onmouseup = null;				
+				if( obj2 ){	//如果被碰上的元素存在 那么就交换位置
+					startMove( obj2, { left:arr[ target.index ].left,top:arr[target.index].top });
+					startMove( target, { left:arr[ obj2.index ].left,top:arr[obj2.index].top },function (){
+						onOff = true;
+					});
+					obj2.className = "";	
+					var c = obj2.index;			//交换位置后，要交换一下索引值，方便再次从arr中取出相对应位置的值
+					obj2.index = target.index;
+					target.index = c;
+				}else{//如果不存在，拖拽的元素，回到原来的位置
+					startMove( target, { left:arr[ target.index ].left,top:arr[target.index].top },function (){
+							onOff = true;
+					});
+				}
+			}
+		};
+		return false;		//去掉拖拽图片的默认行为
+	};	
+
+	function pengzhuang( obj1,obj2 ){	//检测碰撞的函数
+		var obj1L = obj1.offsetLeft;	
+		var obj1T = obj1.offsetTop;	
+		var obj1W = obj1.offsetWidth;	
+		var obj1H = obj1.offsetHeight;
+
+		var obj2L = obj2.offsetLeft;	
+		var obj2T = obj2.offsetTop;	
+		var obj2W = obj2.offsetWidth;	
+		var obj2H = obj2.offsetHeight;	
+		//排除没有碰上的区域
+		if( obj1W + obj1L < obj2L || obj1H + obj1T < obj2T || obj1L > obj2L + obj2W || obj1T > obj2T + obj2H ){
+			return false;
+		}else{
+			return true;
+		}
+	}
+};
+</script>
+	</head>
+
+	<body>
+		<div id="div1">
+			<input type="button" value="随机" id="btn" />
+			<ul id="oUl">
+				<li>
+					<img src="{{ site.baseurl}}/static/img/photo1.jpg" />
+				</li>
+				<li>
+					<img src="{{ site.baseurl}}/static/img/photo2.jpg" />
+				</li>
+				<li>
+					<img src="{{ site.baseurl}}/static/img/photo3.jpg" />
+				</li>
+				<li>
+					<img src="{{ site.baseurl}}/static/img/photo4.jpg" />
+				</li>
+				<li>
+					<img src="{{ site.baseurl}}/static/img/photo5.jpg" />
+				</li>
+				<li>
+					<img src="{{ site.baseurl}}/static/img/photo1.jpg" />
+				</li>
+				<li>
+					<img src="{{ site.baseurl}}/static/img/photo2.jpg" />
+				</li>
+				<li>
+					<img src="{{ site.baseurl}}/static/img/photo3.jpg" />
+				</li>
+				<li>
+					<img src="{{ site.baseurl}}/static/img/photo4.jpg" />
+				</li>
+				<li>
+					<img src="{{ site.baseurl}}/static/img/photo5.jpg" />
+				</li>
+				<li>
+					<img src="{{ site.baseurl}}/static/img/photo1.jpg" />
+				</li>
+				<li>
+					<img src="{{ site.baseurl}}/static/img/photo2.jpg" />
+				</li>
+			</ul>
+		</div>
+	</body>
+</html>
