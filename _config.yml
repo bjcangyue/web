@@ -14,7 +14,7 @@ github_username: bjcangyue
 permalink: /:year/:month/:day/:title/
 source: /web/
 host: http://bjcangyue.github.io/
-baseurl: /web/
+baseurl: /web
 
 # Build settings
 markdown: kramdown
