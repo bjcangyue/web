@@ -10,9 +10,10 @@ description: 苍月的练习曲-Blog 前端学习者
 # baseurl: "" # the subpath of your site, e.g. /blog/
 # url: "http://yourdomain.com" # the base  hostname & protocol for your site
 # twitter_username: jekyllrb
-github_username:  bjcangyue
+github_username: bjcangyue
 permalink: /:year/:month/:day/:title/
-baseurl: /web
+source: /web/
+baseurl: /web/
 
 # Build settings
 markdown: kramdown
