@@ -13,6 +13,7 @@ description: 苍月的练习曲-Blog 前端学习者
 github_username: bjcangyue
 permalink: /:year/:month/:day/:title/
 source: /web/
+host: http://bjcangyue.github.io/
 baseurl: /web/
 
 # Build settings
