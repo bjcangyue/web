@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title></title>
+		<style>
+			*{padding: 0;margin: 0;}
+			li{list-style: none;}
+			#div1{
+				overflow:hidden;
+			}
+			.list {
+				width: 100px;
+				float: left;
+				text-align: center;
+				margin: 10px;
+				height: 150px;
+			}
+			.list img {
+				height: 100px;
+			}
+			#oUl li {
+				width: 30px;
+				height: 30px;
+				background:red;
+				line-height: 30px;
+				text-align: center;
+				float: left;
+				margin: 20px;
+			}
+		</style>
+<script>
+
+/*
+	artTemplate
+	jade
+*/
+
+function fn(data){
+	var num = Math.ceil( data.total/20 );
+	if( num > 10 ) num = 10;
+	div1.innerHTML = "<p>您搜索的图书"+val+"，总共有"+ data.total +"条</p>";
+	var html = "";
+	var  arr = data.books;
+
+	for( var i = 0; i < arr.length; i++ ){
+		html += '<div class="list"><img src="'+ arr[i].image +'" /><p>'+ arr[i].author[0] +'</p><p>'+arr[i].title+'</p></div>';
+	};
+	div1.innerHTML += html;
+
+	//生成页数
+	var htmlLi = "";
+	for( var j = 0; j < num; j++ ){
+		htmlLi += "<li>"+(j+1)+"</li>"
+	};
+
+	oUl.innerHTML = htmlLi;
+
+	var aLi = oUl.getElementsByTagName("li");
+
+	for( var i = 0; i < aLi.length; i++ ){
+		aLi[i].onclick = function (){
+			div1.innerHTML = "loding...."
+			var num = parseInt( this.innerHTML.trim() ) - 1;
+			window.location.hash = "book="+val+"&page="+(num+1);
+			addScript( num );
+		};
+	}
+};
+//封装请求的script
+function addScript( n ){
+	var douban = document.getElementById("douban");
+	if( douban ){
+		document.body.removeChild(douban)
+	}
+	var script = document.createElement("script");
+		script.id = "douban";
+		script.src = "https://api.douban.com/v2/book/search?q="+val+"&start="+(n*20)+"&count=20&callback=fn";
+	document.body.appendChild(script);	
+}
+var val = "";
+window.onload = function(){
+	var hash = window.location.hash;
+	window.onhashchange  = function (){
+		var hash = window.location.hash;
+		var arr2 = [];
+		arr2 = hash.split( "&" );
+		val = arr2[0].split("=")[1];
+		var n = arr2[1].split("=")[1];
+		addScript( n-1 );
+	};
+
+	var arr = [];
+	if( hash !== "" ){
+		arr = hash.split( "&" );
+		val = arr[0].split("=")[1];
+		var n = arr[1].split("=")[1];
+		addScript( n-1 );
+	}
+
+	btn.onclick = function (){
+		val = search.value;
+		window.location.hash = "book="+val+"&page=1";
+ 		addScript( 0 );
+	};
+};
+</script>
+	</head>
+
+	<body>
+		<input type="text" id="search" />
+		<input type="button" value="搜索" id="btn" />
+		<div id="div1">
+		您搜索的图书XXX，总共有xx条
+			<!-- <div class="list">
+				<img src="http://img3.douban.com//mpic//s3400022.jpg" />
+				<p>XXXX</p>
+				<p>XXXXX</p>
+			</div>
+			<div class="list">
+				<img src="http://img3.douban.com//mpic//s3400022.jpg" />
+				<p>XXXX</p>
+				<p>XXXXX</p>
+			</div> -->
+		</div>
+		<ul id="oUl">
+		</ul>
+	</body>
+</html>
